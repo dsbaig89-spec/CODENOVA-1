@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Health Assistant - Chatbot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-r from-teal-100 to-blue-100 font-sans">
+  <!-- Header -->
+  <header class="bg-white shadow p-4 flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-teal-700">AI Health Assistant</h1>
+    <button onclick="window.location.href='index.html'" class="text-red-600 font-medium hover:underline">Logout</button>
+  </header>
+
+  <!-- Chat Container -->
+  <main class="flex-grow flex flex-col items-center justify-center p-6">
+    <div class="w-full max-w-2xl bg-white rounded-lg shadow-lg flex flex-col h-[70vh]">
+      <!-- Chat Messages -->
+      <div id="chat-container" class="flex-grow p-4 overflow-y-auto space-y-4">
+        <!-- Messages will appear here -->
+      </div>
+      <!-- Input Area -->
+      <div class="p-4 border-t flex space-x-2">
+        <input id="chat-input" type="text" placeholder="Type your message..."
+          class="flex-grow border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        <button id="send-btn"
+          class="bg-teal-600 text-white px-4 py-2 rounded-lg hover:bg-teal-700 transition-colors">Send</button>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const chatContainer = document.getElementById('chat-container');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+
+    function appendMessage(text, sender) {
+      const msg = document.createElement('div');
+      msg.className = sender === 'user'
+        ? 'self-end bg-teal-600 text-white p-2 rounded-lg max-w-xs ml-auto'
+        : 'self-start bg-gray-200 text-gray-800 p-2 rounded-lg max-w-xs';
+      msg.innerText = text;
+      chatContainer.appendChild(msg);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    async function sendMessage() {
+      const text = chatInput.value.trim();
+      if (!text) return;
+      appendMessage(text, 'user');
+      chatInput.value = '';
+
+      try {
+        const response = await fetch('http://127.0.0.1:8000/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text })
+        });
+
+        const data = await response.json();
+        appendMessage(data.reply || "⚠️ No reply from backend", 'bot');
+      } catch (error) {
+        appendMessage("⚠️ Error connecting to backend", 'bot');
+      }
+    }
+
+    sendBtn.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') sendMessage();
+    });
+  </script>
+</body>
+</html>

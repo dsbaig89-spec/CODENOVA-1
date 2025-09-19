@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+pydantic
+python-multipart
+
+scikit-learn
+joblib
+pandas
+numpy
+
+# Optional: if you use translation or emergency modules
+googletrans==4.0.0-rc1
